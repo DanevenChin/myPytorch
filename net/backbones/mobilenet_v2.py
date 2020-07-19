@@ -21,10 +21,6 @@ model_urls = {
     'mobilenet_v2': 'https://download.pytorch.org/models/mobilenet_v2-b0353104.pth',
 }
 
-try:
-    from torch.hub import load_state_dict_from_url
-except ImportError:
-    from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
 
 def _make_divisible(v, divisor, min_value=None):
@@ -205,4 +201,5 @@ def mobilenet_v2(pretrained=False, progress=True, **kwargs):
 if __name__ == '__main__':
     from torchsummary import summary
     mob_v2 = mobilenet_v2(pretrained=True).to("cuda")
-    print(summary(mob_v2, (3, 300, 300)))
+    print(mob_v2)
+    # summary(mob_v2, (3, 300, 300))
