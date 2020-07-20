@@ -14,11 +14,17 @@ from net.heads.ssd_head import multibox
 
 
 class ssdlite_mobilenet_v2(nn.Module):
-    def __init__(self, num_class, width_ratio=1.0):
+    def __init__(self, num_class, width_ratio=1.0, is_train=True):
         super(ssdlite_mobilenet_v2, self).__init__()
+        # 参数
+        self.is_train = is_train
+        self.num_classes = num_class
+
+        # 网络结构
         self.features = MobileNetV2(width_mult=width_ratio).features
         self.ssdlite = ssd_body()
-        self.loc_layers, self.conf_layers = multibox(num_class, width_mult = width_ratio)
+        self.loc_layers, self.conf_layers = multibox(num_class, width_mult=width_ratio)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         source = []
@@ -26,11 +32,10 @@ class ssdlite_mobilenet_v2(nn.Module):
             x = layer(x)
 
         sub = getattr(self.features[14], "conv")
-        for layer in sub[:3]:
-            x = layer(x)
+        x = sub[0](x)
         source.append(x)
 
-        for layer in sub[3:]:
+        for layer in sub[1:]:
             x = layer(x)
 
         for layer in self.features[15:]:
@@ -53,13 +58,13 @@ class ssdlite_mobilenet_v2(nn.Module):
         if self.is_train:
             output = (
                 loc.view(loc.size(0), -1, 4),
-                conf.view(conf.size(0), -1, self.n_classes)
+                conf.view(conf.size(0), -1, self.num_classes)
             )
         else:
             output = (
                 loc,
-                torch.max(self.sigmoid(conf.view(-1, self.n_classes)), dim=1)[0],
-                torch.max(self.sigmoid(conf.view(-1, self.n_classes)), dim=1)[1],
+                torch.max(self.sigmoid(conf.view(-1, self.num_classes)), dim=1)[0],
+                torch.max(self.sigmoid(conf.view(-1, self.num_classes)), dim=1)[1],
             )
 
         return output

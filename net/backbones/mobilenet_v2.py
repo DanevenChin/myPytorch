@@ -201,5 +201,5 @@ def mobilenet_v2(pretrained=False, progress=True, **kwargs):
 if __name__ == '__main__':
     from torchsummary import summary
     mob_v2 = mobilenet_v2(pretrained=True).to("cuda")
-    print(mob_v2)
-    # summary(mob_v2, (3, 300, 300))
+    # print(mob_v2)
+    summary(mob_v2, (8, 3, 300, 300))
