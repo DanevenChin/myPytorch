@@ -114,7 +114,7 @@ def match(threshold, truths, priors, variances, labels, loc_t, conf_t, idx):
         # 那么, 此时, 我们就应该将best_truth_idx[i]= k 修改成 best_truth_idx[i]= j.
         # 即令 priorbox[i] 与 gtbox[j]对应.
         # 这样做的原因: 防止某个gtbox没有匹配的 prior box.
-    mathes = truths[best_truth_idx]
+    matches = truths[best_truth_idx]
     # truths 的shape 为[num_objs, 4], 而best_truth_idx是一个指示下标的列表, 列表长度为 8732,
     # 列表中的下标范围为0~num_objs-1, 代表的是与每个priorbox匹配的gtbox的下标
     # 上面的表达式会返回一个shape为 [num_priors, 4], 即 [8732, 4] 的tensor, 代表的就是与每个priorbox匹配的gtbox的坐标值.
