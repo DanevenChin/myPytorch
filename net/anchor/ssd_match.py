@@ -57,6 +57,7 @@ def jaccard(box_a, box_b):
     union = area_a + area_b - inter
     return inter / union # [A, B], 返回任意两个box之间的交并比, res[i][j] 代表box_a中的第i个box与box_b中的第j个box之间的交并比.
 
+
 def encode(matched, priors, variances):
     # 对边框坐标进行编码, 需要宽度方差和高度方差两个参数, 具体公式可以参见原文公式(2)
     # matched: [num_priors,4] 存储的是与priorbox匹配的gtbox的坐标. 形式为(xmin, ymin, xmax, ymax)
@@ -68,6 +69,7 @@ def encode(matched, priors, variances):
     g_wh = (matched[:, 2:] - matched[:, :2]) / priors[:, 2:] # 令互相匹配的gtbox的宽高除以priorbox的宽高.
     g_wh = torch.log(g_wh) / variances[1] # 这里这个variances[1]=0.2 不太懂是为什么.
     return torch.cat([g_cxy, g_wh], 1) # 将编码后的中心坐标和宽高``连接起来, 返回 [num_priors, 4]
+
 
 def match(threshold, truths, priors, variances, labels, loc_t, conf_t, idx):
     # threshold: (float) 确定是否匹配的交并比阈值
