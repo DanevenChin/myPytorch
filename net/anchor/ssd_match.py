@@ -123,5 +123,7 @@ def match(threshold, truths, priors, variances, labels, loc_t, conf_t, idx):
     conf = labels[best_truth_idx]+1 # 与上面的语句道理差不多, 这里得到的是每个prior box匹配的类别编号, shape 为[8732]
     conf[best_truth_overlap < threshold] = 0 # 将与gtbox的交并比小于阈值的置为0 , 即认为是非物体框
     loc = encode(matches, priors, variances) # 返回编码后的中心坐标和宽高.
-    loc_t[idx] = loc # 设置第idx张图片的gt编码坐标信息
-    conf_t[idx] = conf # 设置第idx张图片的编号信息.(大于0即为物体编号, 认为有物体, 小于0认为是背景)
+    loc_t[idx] = loc  # 设置第idx张图片的gt编码坐标信息
+    conf_t[idx] = conf  # 设置第idx张图片的编号信息.(大于0即为物体编号, 认为有物体, 小于0认为是背景)
+
+    return loc_t, conf_t

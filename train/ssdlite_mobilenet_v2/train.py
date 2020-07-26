@@ -10,6 +10,7 @@ from net.ssdlite_mobilenet_v2 import ssdlite_mobilenet_v2
 from net.backbones.mobilenet_v2 import MobileNetV2
 import torch
 from torch.autograd import Variable
+from net.losses.ssdlite_loss import compute_loss
 
 
 def load_model(pretrain_model=True):
@@ -45,23 +46,19 @@ def train():
     model = load_model()
     # print(model)
 
-    # 损失函数
-    classification_loss = torch.nn.BCEWithLogitsLoss()
-    localization_loss = torch.nn.SmoothL1Loss()
-
-    for epo in range(1):
+    for epo in range(epoch):
         model.train()
         input_tensor = torch.rand(8, 3, 300, 300).cuda()
         target_cls = torch.rand(8, 1917, 1)
         target_loc = torch.rand(8, 1917, 4)
+        target = torch.cat((target_loc, target_cls), 2)
         input = Variable(input_tensor.cuda())
         print(input_tensor.shape)
         output = model(input)
 
-        cls_loss = classification_loss(output[1], target_cls)
-        loc_loss = localization_loss(output[0], target_loc)
-        loss = cls_loss + loc_loss
-
+        total_loss, loc_loss, cls_loss = compute_loss(output, target)
+        print(total_loss)
+        total_loss.backward()
 
 
 if __name__ == '__main__':

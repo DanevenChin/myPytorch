@@ -64,13 +64,21 @@ class PriorBox(object):
         return output # 输出default box坐标(可以理解为anchor box)
 
 
-def get_prior_box():
+def get_prior_box(feature_map = [19, 10, 5, 3, 2, 1],
+                  smin=0.2,
+                  smax=0.95,
+                  aspect_ratios=[1, 2, 3, 1/2, 1/3]):
+    """
+    计算先验框，先验框设置第一个特征图的先验框个数为3个，其尺度对应长宽比为[(0.1,1),(0.2,2),(0.2,1/2)]
+    其余特征图的先验框个数为6个，其中最后一个特征图计算另外一个长宽比为1的尺度时，为防止溢出，最大为1
+    :param feature_map: 列表，其中包含特征图的size
+    :param smin:  最小尺度，0~1之间
+    :param smax:  最大尺度，0~1之间
+    :param aspect_ratios:  长宽比设置
+    :return:  numpy， 返回每个先验框位置的坐标，[先验框总数量，4]
+    """
     # feature_map = [32, 16, 8, 4, 2, 1]  # input_shape:512
-    feature_map = [19, 10, 5, 3, 2, 1]  # input_shape:300
     feature_map_num = len(feature_map)
-    smin = 0.2
-    smax = 0.95
-    aspect_ratios = [1, 2, 3, 1/2, 1/3]
 
     anchor_box = []
     add_value = (smax - smin) / (feature_map_num - 1)
@@ -91,7 +99,10 @@ def get_prior_box():
                 anchor_box.append((cx, cy, sk, sk))
                 ars = aspect_ratios
 
-                sk_ = sqrt(sk*(sk+add_value))
+                sk_next = sk+add_value
+                if sk_next > 1:
+                    sk_next=1
+                sk_ = sqrt(sk*sk_next)
                 anchor_box.append((cx, cy, sk_, sk_))
 
             # 长宽比为其他时
