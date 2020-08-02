@@ -70,7 +70,7 @@ def get_prior_box(feature_map = [19, 10, 5, 3, 2, 1],
                   aspect_ratios=[1, 2, 3, 1/2, 1/3]):
     """
     计算先验框，先验框设置第一个特征图的先验框个数为3个，其尺度对应长宽比为[(0.1,1),(0.2,2),(0.2,1/2)]
-    其余特征图的先验框个数为6个，其中最后一个特征图计算另外一个长宽比为1的尺度时，为防止溢出，最大为1
+    其余特征图的先验框个数为6个(顺序为[1, 1', 2, 3, 1/2, 1/3])，其中最后一个特征图计算另外一个长宽比为1的尺度时，为防止溢出，最大为1
     :param feature_map: 列表，其中包含特征图的size
     :param smin:  最小尺度，0~1之间
     :param smax:  最大尺度，0~1之间
@@ -111,9 +111,11 @@ def get_prior_box(feature_map = [19, 10, 5, 3, 2, 1],
                 h = sk / sqrt(ar)
                 anchor_box.append((cx, cy, w, h))
 
-    for box in anchor_box:
-        print(box)
     anchor_box = torch.tensor(anchor_box)
+    xmin_ymin = anchor_box[:, :2] - anchor_box[:, 2:] / 2
+    xmax_ymax = anchor_box[:, :2] + anchor_box[:, 2:] / 2
+    anchor_box = torch.cat((xmin_ymin, xmax_ymax), 1)
+
     return anchor_box.clamp(min=0, max=1)
 
 
